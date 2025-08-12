@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: canvas-web
+    env: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: CANVAS_LMS_DOMAIN
+        value: canvas.onrender.com
+      - key: CANVAS_LMS_HOST
+        value: canvas.onrender.com
+      - key: CANVAS_LMS_ADMIN_EMAIL
+        value: admin@tudominio.com
+      - key: CANVAS_LMS_ADMIN_PASSWORD
+        value: 12345678
+      - key: CANVAS_LMS_STATS_COLLECTION
+        value: opt_out
+      - key: SECRET_KEY_BASE
+        sync: false
+
+  - type: worker
+    name: canvas-worker
+    env: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    startCommand: bundle exec sidekiq -C config/sidekiq.yml
+    envVars:
+      - fromService:
+          type: web
+          name: canvas-web
